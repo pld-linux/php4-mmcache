@@ -6,13 +6,14 @@ Summary:	Turck MMCache extension module for PHP
 Summary(pl):	Modu³ Turck MMCache dla PHP
 Name:		php4-%{_name}
 Version:	2.4.6
-Release:	4
+Release:	5
 Epoch:		0
 License:	GPL
 Group:		Libraries
 Vendor:		Turck Software
 Source0:	http://dl.sourceforge.net/%{_pkgname}/%{_pkgname}-%{version}.tar.gz
 # Source0-md5:	bcf671bec2e8b009e9b2d8f8d2574041
+Patch0:		%{name}-debian-8.patch
 URL:		http://turck-mmcache.sourceforge.net
 BuildRequires:	automake
 BuildRequires:	php4-devel >= 4.1
@@ -85,6 +86,7 @@ Wiêcej informacji mo¿na znale¼æ %{url}.
 
 %prep
 %setup -q -n %{_pkgname}-%{version}
+%patch0 -p1
 
 %build
 phpize
