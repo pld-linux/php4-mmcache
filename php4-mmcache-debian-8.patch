@@ -1,0 +1,248 @@
+--- turck-mmcache-2.4.6.orig/mmcache.c
++++ turck-mmcache-2.4.6/mmcache.c
+@@ -4522,11 +4522,14 @@
+ static int mmcache_check_php_version(TSRMLS_D) {
+   zval v;
+   int ret = 0;
++#if 0
+   if (zend_get_constant("PHP_VERSION", sizeof("PHP_VERSION")-1, &v TSRMLS_CC)) {
+     if (Z_TYPE(v) == IS_STRING &&
+         Z_STRLEN(v) == sizeof(PHP_VERSION)-1 &&
+         strcmp(Z_STRVAL(v),PHP_VERSION) == 0) {
++#endif
+       ret = 1;
++#if 0
+     } else {
+       zend_error(E_CORE_WARNING,"[%s] This build of \"%s\" was compiled for PHP version %s. Rebuild it for your PHP version (%s) or download precompiled binaries.\n", MMCACHE_EXTENSION_NAME,MMCACHE_EXTENSION_NAME,PHP_VERSION,Z_STRVAL(v));
+     }
+@@ -4534,6 +4537,7 @@
+   } else {
+     zend_error(E_CORE_WARNING,"[%s] This build of \"%s\" was compiled for PHP version %s. Rebuild it for your PHP version.\n", MMCACHE_EXTENSION_NAME,MMCACHE_EXTENSION_NAME,PHP_VERSION);
+   }
++#endif
+   return ret;
+ }
+ 
+--- turck-mmcache-2.4.6.orig/encoder.php
++++ turck-mmcache-2.4.6/encoder.php
+@@ -1,10 +1,11 @@
++#!/usr/bin/php4 -q
+ <?php
+ $web_error = "";
+ 
+ function mmcache_encoder_usage() {
+-  echo "Usage:\tphp -q encoder.php [options] source_file_name\n";
+-  echo       "\tphp -q encoder.php [options] source_file_name...\n";
+-  echo       "\tphp -q encoder.php [options] source_directory_name...\n\n";
++  echo "Usage:\tturck-encode [options] source_file_name\n";
++  echo       "\tturck-encode [options] source_file_name...\n";
++  echo       "\tturck-encode [options] source_directory_name...\n\n";
+   echo "Options:\n";
+   echo "\t-s suffix\n\t\tencode files only with following suffix (default is \"php\")\n";
+   echo "\t-a\n\t\tencode all files (no by default)\n";
+@@ -16,10 +17,10 @@
+   echo               "\t\tfile name. If you encode directory or several files at once\n";
+   echo               "\t\tthen 'target' specifyes an output directory name.\n";
+   echo "\nExamples:\n";
+-  echo "\tphp -q encoder.php some_file.php\n";
+-  echo "\tphp -q encoder.php some_file.php -o some_encoded_file.php\n";
+-  echo "\tphp -q encoder.php *.php -o some_dir\n";
+-  echo "\tphp -q encoder.php ~/public_html/x -rcf -sphp -sinc -o ~/public_html/y\n";
++  echo "\tturck-encode some_file.php\n";
++  echo "\tturck-encode some_file.php -o some_encoded_file.php\n";
++  echo "\tturck-encode *.php -o some_dir\n";
++  echo "\tturck-encode ~/public_html/x -rcf -sphp -sinc -o ~/public_html/y\n";
+   echo "\n";
+   exit();
+ }
+@@ -38,6 +39,12 @@
+     echo "\n// $src\n";
+   }
+   $prefix = "";
++  if(`grep "TurckLoader.so" $src`)
++  {
++    echo "File already encoded, skipping: $src\n";
++    mmcache_copy_file($src, $out, $f, $web);
++    exit();
++  }
+   $cmp = mmcache_encode($src, $prefix);
+   if (empty($cmp)) {
+     mmcache_error("Can't compile file \"$src\"",$web);
+--- turck-mmcache-2.4.6.orig/debian/turck-mmcache.1
++++ turck-mmcache-2.4.6/debian/turck-mmcache.1
+@@ -0,0 +1,96 @@
++.\"                                      Hey, EMACS: -*- nroff -*-
++.\" First parameter, NAME, should be all caps
++.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
++.\" other parameters are allowed: see man(7), man(1)
++.TH TURCK-MMCACHE 1 "November  3, 2003"
++.\" Please adjust this date whenever revising the manpage.
++.\"
++.SH NAME
++turck-mmcache \- Precompiler and cache to improve performance of PHP scripts
++.SH DESCRIPTION
++This manual page documents briefly the
++.B turck-mmcache
++package.
++This manual page was written for the Debian distribution
++because the original program does not have a manual page.
++.PP
++.B turck-mmcache
++is a PHP Accelerator, Optimizer, Encoder and Dynamic 
++Content Cache. It increases performance of PHP scripts by caching 
++them in a compiled state so that the overhead of compiling is almost 
++completely eliminated. It also uses some optimizations for speedup 
++of PHP script execution. Turck MMCache typically reduces server 
++load and increases the speed of PHP code by 1-10 times.
++.PP
++.B turck-mmcache
++is loaded into PHP as an extension, and stores compiled PHP
++scripts in shared memory and executes code directly from it.
++.PP
++.B turck-mmcache
++is compatible with Zend Optimizer's loader. Zend Optimizer must be
++installed after Turck MMCache in php.ini. If you don't use scripts
++encoded with Zend Encoder then it is not recommend you install Zend
++Optimizer with Turck MMCache.
++.SH OPTIONS
++.B turck-mmcache
++must be loaded into PHP as either a Zend or PHP extension. A number
++settings must be placed in your php.ini file to instruct PHP to load
++.B turck-mmcache
++and to configure the cache options.
++These options are:
++.TP
++.B mmcache.shm_size
++The amount of shared memory (in megabytes) that Turck MMCache will use. "0" means OS default. Default value is "0".
++.TP
++.B mmcache.cache_dir
++The directory that is used for disk cache. Turck MMCache stores precompiled code, session data, content and user entries here. The same data can be stored in shared memory also (for more quick access). Default value is "/tmp/mmcache".
++.TP
++.B mmcache.enable
++Enables or disables Turck MMCache. Should be "1" for enabling or "0" for disabling. Default value is "1".
++.TP
++.B mmcache.optimizer
++Enables or disables internal peephole optimizer which may speed up code execution. Should be "1" for enabling or "0" for disabling. Default value is "1".
++.TP
++.B mmcache.debug
++Enables or disables debug logging. Should be "1" for enabling or "0" for disabling. Default value is "0".
++.TP
++.B mmcache.check_mtime
++Enables or disables PHP file modification checking. Should be "1" for enabling or "0" for disabling. You should set it to "1" if you want to recompile PHP files after modification. Default value is "1".
++.TP
++.B mmcache.filter
++Determine which PHP files must be cached. You may specify the number of patterns (for example "*.php *.phtml") which specifies to cache or not to cache. If pattern starts with the character "!", it means to ignore files which are matched by the following pattern. Default value is "" that means - all PHP scripts will be cached.
++.TP
++.B mmcache.shm_max
++Disables putting large values into shared memory by "mmcache_put()" function. It indicates the largest allowed size in bytes (10240, 10K, 1M). The "0" disables the limit. Default value is "0".
++.TP
++.B mmcache.shm_ttl
++When MMCache fails to get shared memory for new script it removes all scripts which were not accessed at last "shm_ttl" seconds from shared memory. Default value is "0" that means - don't remove any files from shared memory.
++.TP
++.B mmcache.shm_prune_period
++When MMCache fails to get shared memory for new script it tryes to remove old script if the previous try was made more then "shm_prune_period" seconds ago. Default value is "0" that means - don't try to remove any files from shared memory.
++.TP
++.B mmcache.shm_only
++Enables or disables caching of compiled scripts on disk. It has no effect on session data and content caching. Default value is "0" that means - use disk and shared memory for caching.
++.TP
++.B mmcache.compress
++Enables or disables cached content compression. Default value is "1" that means enable compression.
++.TP
++.B mmcache.keys, mmcache.sessions, mmcache.content
++Determine where keys, session data and content will be cached. The possible values are:
++ "shm_and_disk" - cache data in shared memory and on disk (default value)
++ "shm" - cache data in shared memory or on disk if shared memory is full or data size greater than "mmcache.shm_max"
++ "shm_only" - cache data in shared memory
++ "disk_only" - cache data on disk
++ "none" - don't cache data
++.SH MORE INFORMATION
++More information is available online at the following sites:
++.br 
++    http://www.turckware.ru/en/e_mmc.htm
++.br 
++    http://sourceforge.net/projects/turck-mmcache/
++.SH SEE ALSO
++.BR turck-encode (1).
++.br
++.SH AUTHOR
++This manual page was written by Jonathan Oxer <jon@debian.org>,
++for the Debian project (but may be used by others).
+--- turck-mmcache-2.4.6.orig/debian/turck-encode.1
++++ turck-mmcache-2.4.6/debian/turck-encode.1
+@@ -0,0 +1,75 @@
++.\"                                      Hey, EMACS: -*- nroff -*-
++.\" First parameter, NAME, should be all caps
++.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
++.\" other parameters are allowed: see man(7), man(1)
++.TH TURCK-ENCODE 1 "November  3, 2003"
++.\" Please adjust this date whenever revising the manpage.
++.\"
++.SH NAME
++turck-encode \- PHP precompiler for turck-mmcache
++.SH SYNOPSIS
++.B turck-encode
++.RI [options]
++.RI source_file_name
++.SH DESCRIPTION
++[Note: 
++.B turck-encode
++is called 'encoder.php' in the original package, and is executed
++as an argument to PHP. It has been renamed in the Debian package and
++placed in a central location (/usr/bin) so it can be executed directly
++by all users on the system.]
++.PP
++This manual page documents briefly the
++.B turck-encode
++command.
++This manual page was written for the Debian distribution
++because the original program does not have a manual page.
++.PP
++turck-mmcache is a PHP Accelerator, Optimizer, Encoder and Dynamic 
++Content Cache. It increases performance of PHP scripts by caching 
++them in a compiled state so that the overhead of compiling is almost 
++completely eliminated.
++.B turck-encode
++is used to precompile PHP scripts into a bytecode format compatible
++with turck-mmcache, increasing their performance and allowing them to
++be distributed without sourcecode.
++.SH OPTIONS
++The options are:
++.TP
++.B -s suffix
++encode files only with following suffix (default is "php").
++.TP
++.B -a
++encode all files (no by default)
++.TP
++.B -l
++follow symbolic links (no by default)
++.TP
++.B -r
++encode directories recursively (no by default)
++.TP
++.B -c
++copy files that shouldn't be encoded (no by default)
++.TP
++.B -f
++overwrite existing files (no by default)
++.TP
++.B -o
++overwrite existing files (no by default)
++.SH EXAMPLES
++ turck-encode some_file.php
++ turck-encode some_file.php -o some_encoded_file.php
++ turck-encode *.php -o some_dir
++ turck-encode ~/public_html/x -rcf -sphp -sinc -o ~/public_html/y
++.SH MORE INFORMATION
++More information is available online at the following sites:
++.br 
++    http://www.turckware.ru/en/e_mmc.htm
++.br 
++    http://sourceforge.net/projects/turck-mmcache/
++.SH SEE ALSO
++.BR turck-mmcache (1).
++.br
++.SH AUTHOR
++This manual page was written by Jonathan Oxer <jon@debian.org>,
++for the Debian project (but may be used by others).
+
