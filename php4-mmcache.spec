@@ -1,10 +1,10 @@
 %define		_name		mmcache
 %define		_pkgname	turck-mmcache
-%define		php_ver		%(rpm -q --qf '%%{epoch}:%%{version}' php-devel)
+%define		php_ver		%(rpm -q --qf '%%{epoch}:%%{version}' php4-devel)
 
 Summary:	Turck MMCache extension module for PHP
 Summary(pl):	Modu³ Turck MMCache dla PHP
-Name:		php-%{_name}
+Name:		php4-%{_name}
 Version:	2.4.6
 Release:	4
 Epoch:		0
@@ -15,16 +15,16 @@ Source0:	http://dl.sourceforge.net/%{_pkgname}/%{_pkgname}-%{version}.tar.gz
 # Source0-md5:	bcf671bec2e8b009e9b2d8f8d2574041
 URL:		http://turck-mmcache.sourceforge.net
 BuildRequires:	automake
-BuildRequires:	php-devel >= 4.1
+BuildRequires:	php4-devel >= 4.1
 BuildRequires:	libtool
 Requires:	apache >= 1.3
-Requires:	php = %{php_ver}
-Requires:	php-zlib
-Requires(post,preun):	php-common >= 4.1
+Requires:	php4 = %{php_ver}
+Requires:	php4-zlib
+Requires(post,preun):	php4-common >= 4.1
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
-%define		_sysconfdir	/etc/php
-%define		extensionsdir	%{_libdir}/php
+%define		_sysconfdir	/etc/php4
+%define		extensionsdir	%{_libdir}/php4
 
 %description
 Turck MMCache is a PHP Accelerator & Encoder. It increases performance
@@ -48,9 +48,9 @@ Summary:	Standalone loader of Turck MMCache's cached files
 Summary(pl):	Osobny loader plików Turck MMCache
 Group:		Libraries
 Requires:	apache >= 1.3
-Requires(post,preun):	php-common >= 4.1
-Requires:	php >= %{php_ver}
-Requires:	php <= %{php_ver}-999
+Requires(post,preun):	php4-common >= 4.1
+Requires:	php4 >= %{php_ver}
+Requires:	php4 <= %{php_ver}-999
 Provides:	TurckLoader = %{epoch}:%{version}-%{release}
 
 %description TurckLoader
@@ -116,19 +116,19 @@ install ./TurckLoader/modules/TurckLoader.so $RPM_BUILD_ROOT%{extensionsdir}
 rm -rf $RPM_BUILD_ROOT
 
 %post
-%{_sbindir}/php-module-install install mmcache %{_sysconfdir}/php.ini
+%{_sbindir}/php4-module-install install mmcache %{_sysconfdir}/php.ini
 
 %preun
 if [ "$1" = "0" ]; then
-	%{_sbindir}/php-module-install remove mmcache %{_sysconfdir}/php.ini
+	%{_sbindir}/php4-module-install remove mmcache %{_sysconfdir}/php.ini
 fi
 
 %post TurckLoader
-%{_sbindir}/php-module-install install TurckLoader %{_sysconfdir}/php.ini
+%{_sbindir}/php4-module-install install TurckLoader %{_sysconfdir}/php.ini
 
 %preun TurckLoader
 if [ "$1" = "0" ]; then
-	%{_sbindir}/php-module-install remove TurckLoader %{_sysconfdir}/php.ini
+	%{_sbindir}/php4-module-install remove TurckLoader %{_sysconfdir}/php.ini
 fi
 
 %files
