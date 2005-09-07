@@ -89,7 +89,6 @@ Wiêcej informacji mo¿na znale¼æ %{url}.
 
 %build
 phpize
-%{__aclocal}
 %configure \
 	--enable-mmcache=shared \
 	--with-php-config=%{_bindir}/php-config
