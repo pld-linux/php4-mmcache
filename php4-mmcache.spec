@@ -7,7 +7,7 @@ Summary:	Turck MMCache extension module for PHP
 Summary(pl):	Modu³ Turck MMCache dla PHP
 Name:		php4-%{_modname}
 Version:	2.4.6
-Release:	5.2
+Release:	6
 Epoch:		0
 License:	GPL
 Group:		Libraries
