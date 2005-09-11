@@ -1,12 +1,13 @@
-%define		_name		mmcache
+%define		_modname		mmcache
 %define		_pkgname	turck-mmcache
-%define		php_ver		%(rpm -q --qf '%%{epoch}:%%{version}' php4-devel)
+%define		_sysconfdir	/etc/php4
+%define		extensionsdir	%(php-config --extension-dir 2>/dev/null)
 
 Summary:	Turck MMCache extension module for PHP
 Summary(pl):	Modu³ Turck MMCache dla PHP
-Name:		php4-%{_name}
+Name:		php4-%{_modname}
 Version:	2.4.6
-Release:	5
+Release:	5.2
 Epoch:		0
 License:	GPL
 Group:		Libraries
@@ -15,16 +16,14 @@ Source0:	http://dl.sourceforge.net/%{_pkgname}/%{_pkgname}-%{version}.tar.gz
 # Source0-md5:	bcf671bec2e8b009e9b2d8f8d2574041
 Patch0:		%{name}-debian-8.patch
 URL:		http://turck-mmcache.sourceforge.net
-BuildRequires:	php4-devel >= 4.1
 BuildRequires:	libtool
+BuildRequires:	php4-devel >= 4.1
+BuildRequires:	rpmbuild(macros) >= 1.230
+%requires_eq_to php4-common php4-devel
+Requires:	%{_sysconfdir}/conf.d
 Requires:	apache >= 1.3
-Requires:	php4 = %{php_ver}
 Requires:	php4-zlib
-Requires(post,preun):	php4-common >= 4.1
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-%define		_sysconfdir	/etc/php4
-%define		extensionsdir	%{_libdir}/php4
 
 %description
 Turck MMCache is a PHP Accelerator & Encoder. It increases performance
@@ -48,9 +47,7 @@ Summary:	Standalone loader of Turck MMCache's cached files
 Summary(pl):	Osobny loader plików Turck MMCache
 Group:		Libraries
 Requires:	apache >= 1.3
-Requires(post,preun):	php4-common >= 4.1
-Requires:	php4 >= %{php_ver}
-Requires:	php4 <= %{php_ver}-999
+%requires_eq_to php4-common php4-devel
 Provides:	TurckLoader = %{epoch}:%{version}-%{release}
 
 %description TurckLoader
@@ -104,42 +101,56 @@ cd ..
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{extensionsdir}
-install -d $RPM_BUILD_ROOT%{_bindir}
+install -d $RPM_BUILD_ROOT{%{_sysconfdir}/conf.d,%{extensionsdir},%{_bindir}}
 
 install ./modules/mmcache.so $RPM_BUILD_ROOT%{extensionsdir}
 install ./encoder.php $RPM_BUILD_ROOT%{_bindir}
-
 install ./TurckLoader/modules/TurckLoader.so $RPM_BUILD_ROOT%{extensionsdir}
+
+cat <<'EOF' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/%{_modname}.ini
+; Enable %{_modname} extension module
+extension=%{_modname}.so
+EOF
+
+cat <<'EOF' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/TurckLoader.ini
+; Enable TurkLoader
+extension=TurkLoader.so
+EOF
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
-%{_sbindir}/php4-module-install install mmcache %{_sysconfdir}/php.ini
+[ ! -f /etc/apache/conf.d/??_mod_php4.conf ] || %service -q apache restart
+[ ! -f /etc/httpd/httpd.conf/??_mod_php4.conf ] || %service -q httpd restart
 
-%preun
-if [ "$1" = "0" ]; then
-	%{_sbindir}/php4-module-install remove mmcache %{_sysconfdir}/php.ini
+%postun
+if [ "$1" = 0 ]; then
+	[ ! -f /etc/apache/conf.d/??_mod_php4.conf ] || %service -q apache restart
+	[ ! -f /etc/httpd/httpd.conf/??_mod_php4.conf ] || %service -q httpd restart
 fi
 
 %post TurckLoader
-%{_sbindir}/php4-module-install install TurckLoader %{_sysconfdir}/php.ini
+[ ! -f /etc/apache/conf.d/??_mod_php4.conf ] || %service -q apache restart
+[ ! -f /etc/httpd/httpd.conf/??_mod_php4.conf ] || %service -q httpd restart
 
-%preun TurckLoader
-if [ "$1" = "0" ]; then
-	%{_sbindir}/php4-module-install remove TurckLoader %{_sysconfdir}/php.ini
+%postun TurckLoader
+if [ "$1" = 0 ]; then
+	[ ! -f /etc/apache/conf.d/??_mod_php4.conf ] || %service -q apache restart
+	[ ! -f /etc/httpd/httpd.conf/??_mod_php4.conf ] || %service -q httpd restart
 fi
 
 %files
 %defattr(644,root,root,755)
 %doc CREDITS EXPERIMENTAL README TODO
+%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/conf.d/%{_modname}.ini
 %attr(755,root,root) %{extensionsdir}/mmcache.so
 %attr(755,root,root) %{_bindir}/encoder.php
 
 %files TurckLoader
 %defattr(644,root,root,755)
 %doc CREDITS EXPERIMENTAL
+%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/conf.d/TurckLoader.ini
 %attr(755,root,root) %{extensionsdir}/TurckLoader.so
 
 %files webinterface
