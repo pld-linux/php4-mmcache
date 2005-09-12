@@ -143,14 +143,14 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc CREDITS EXPERIMENTAL README TODO
-%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/conf.d/%{_modname}.ini
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/%{_modname}.ini
 %attr(755,root,root) %{extensionsdir}/mmcache.so
 %attr(755,root,root) %{_bindir}/encoder.php
 
 %files TurckLoader
 %defattr(644,root,root,755)
 %doc CREDITS EXPERIMENTAL
-%config(noreplace) %verify(not size mtime md5) %{_sysconfdir}/conf.d/TurckLoader.ini
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/TurckLoader.ini
 %attr(755,root,root) %{extensionsdir}/TurckLoader.so
 
 %files webinterface
