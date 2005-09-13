@@ -16,10 +16,9 @@ Source0:	http://dl.sourceforge.net/%{_pkgname}/%{_pkgname}-%{version}.tar.gz
 # Source0-md5:	bcf671bec2e8b009e9b2d8f8d2574041
 Patch0:		%{name}-debian-8.patch
 URL:		http://turck-mmcache.sourceforge.net
-BuildRequires:	libtool
 BuildRequires:	php4-devel >= 4.1
-BuildRequires:	rpmbuild(macros) >= 1.230
-%requires_eq_to php4-common php4-devel
+BuildRequires:	rpmbuild(macros) >= 1.238
+%requires_php_extension
 Requires:	%{_sysconfdir}/conf.d
 Requires:	apache >= 1.3
 Requires:	php4-zlib
@@ -47,7 +46,7 @@ Summary:	Standalone loader of Turck MMCache's cached files
 Summary(pl):	Osobny loader plików Turck MMCache
 Group:		Libraries
 Requires:	apache >= 1.3
-%requires_eq_to php4-common php4-devel
+%requires_php_extension
 Provides:	TurckLoader = %{epoch}:%{version}-%{release}
 
 %description TurckLoader
