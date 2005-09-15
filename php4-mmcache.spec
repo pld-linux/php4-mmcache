@@ -104,6 +104,8 @@ install -d $RPM_BUILD_ROOT{%{_sysconfdir}/conf.d,%{extensionsdir},%{_bindir}}
 
 install ./modules/mmcache.so $RPM_BUILD_ROOT%{extensionsdir}
 install ./encoder.php $RPM_BUILD_ROOT%{_bindir}
+install ./mmcache_password.php $RPM_BUILD_ROOT%{_bindir}
+install ./mmcache.php $RPM_BUILD_ROOT%{_bindir}
 install ./TurckLoader/modules/TurckLoader.so $RPM_BUILD_ROOT%{extensionsdir}
 
 cat <<'EOF' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/%{_modname}.ini
@@ -154,5 +156,5 @@ fi
 
 %files webinterface
 %defattr(644,root,root,755)
-# FIXME: czy tak rzeczywi¶cie powinno/mo¿e byæ??
-%doc mmcache{,_password}.php
+%attr(755,root,root) %{_bindir}/mmcache.php
+%attr(755,root,root) %{_bindir}/mmcache_password.php
