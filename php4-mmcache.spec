@@ -16,7 +16,7 @@ Source0:	http://dl.sourceforge.net/%{_pkgname}/%{_pkgname}-%{version}.tar.gz
 # Source0-md5:	bcf671bec2e8b009e9b2d8f8d2574041
 Patch0:		%{name}-debian-8.patch
 URL:		http://turck-mmcache.sourceforge.net
-BuildRequires:	php4-devel >= 4.1
+BuildRequires:	php4-devel >= 3:4.1
 BuildRequires:	rpmbuild(macros) >= 1.238
 %{?requires_php_extension}
 Requires:	%{_sysconfdir}/conf.d
