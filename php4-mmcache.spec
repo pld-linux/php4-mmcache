@@ -7,7 +7,7 @@ Summary:	Turck MMCache extension module for PHP
 Summary(pl):	Modu³ Turck MMCache dla PHP
 Name:		php4-%{_modname}
 Version:	2.4.6
-Release:	6
+Release:	7
 Epoch:		0
 License:	GPL
 Group:		Libraries
@@ -114,8 +114,8 @@ extension=%{_modname}.so
 EOF
 
 cat <<'EOF' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/TurckLoader.ini
-; Enable TurkLoader
-extension=TurkLoader.so
+; Enable TurckLoader
+extension=TurckLoader.so
 EOF
 
 %clean
