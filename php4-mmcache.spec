@@ -19,6 +19,7 @@ URL:		http://turck-mmcache.sourceforge.net
 BuildRequires:	php4-devel >= 3:4.1
 BuildRequires:	rpmbuild(macros) >= 1.238
 %{?requires_php_extension}
+%{?requires_zend_extension}
 Requires:	%{_sysconfdir}/conf.d
 Requires:	apache >= 1.3
 Requires:	php4-zlib
@@ -47,6 +48,7 @@ Summary(pl):	Osobny loader plików Turck MMCache
 Group:		Libraries
 Requires:	apache >= 1.3
 %{?requires_php_extension}
+%{?requires_zend_extension}
 Provides:	TurckLoader = %{epoch}:%{version}-%{release}
 
 %description TurckLoader
