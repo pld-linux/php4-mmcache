@@ -102,13 +102,18 @@ cd ..
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_sysconfdir}/conf.d,%{extensionsdir},%{_bindir}}
+install -d $RPM_BUILD_ROOT{%{_sysconfdir}/conf.d,%{extensionsdir},%{_bindir},%{_mandir}/man1,%{_datadir}/%{name}}
 
 install ./modules/mmcache.so $RPM_BUILD_ROOT%{extensionsdir}
-install ./encoder.php $RPM_BUILD_ROOT%{_bindir}
-install ./mmcache_password.php $RPM_BUILD_ROOT%{_bindir}
-install ./mmcache.php $RPM_BUILD_ROOT%{_bindir}
+
+install ./encoder.php $RPM_BUILD_ROOT%{_bindir}/turck-encode
+echo '#!%{_bindir}/php4 -q' > $RPM_BUILD_ROOT%{_bindir}/turck-mmcache_password
+cat ./mmcache_password.php >> $RPM_BUILD_ROOT%{_bindir}/turck-mmcache_password
+
+install ./mmcache*.php $RPM_BUILD_ROOT%{_datadir}/%{name}
+
 install ./TurckLoader/modules/TurckLoader.so $RPM_BUILD_ROOT%{extensionsdir}
+install debian/*.1 $RPM_BUILD_ROOT%{_mandir}/man1
 
 cat <<'EOF' > $RPM_BUILD_ROOT%{_sysconfdir}/conf.d/%{_modname}.ini
 ; Enable %{_modname} extension module
@@ -148,7 +153,9 @@ fi
 %doc CREDITS EXPERIMENTAL README TODO
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/conf.d/%{_modname}.ini
 %attr(755,root,root) %{extensionsdir}/mmcache.so
-%attr(755,root,root) %{_bindir}/encoder.php
+%attr(755,root,root) %{_bindir}/turck-encode
+%attr(755,root,root) %{_bindir}/turck-mmcache_password
+%{_mandir}/man1/*
 
 %files TurckLoader
 %defattr(644,root,root,755)
@@ -158,5 +165,4 @@ fi
 
 %files webinterface
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_bindir}/mmcache.php
-%attr(755,root,root) %{_bindir}/mmcache_password.php
+%{_datadir}/%{name}
