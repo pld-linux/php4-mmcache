@@ -20,7 +20,7 @@ BuildRequires:	rpmbuild(macros) >= 1.254
 %{?requires_php_extension}
 %{?requires_zend_extension}
 Requires:	%{_sysconfdir}/conf.d
-Requires:	apache >= 1.3
+Requires:	webserver = apache
 Requires:	php4-zlib
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
