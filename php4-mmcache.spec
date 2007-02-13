@@ -4,7 +4,7 @@
 %define		extensionsdir	%(php-config --extension-dir 2>/dev/null)
 
 Summary:	Turck MMCache extension module for PHP
-Summary(pl.UTF-8):   Moduł Turck MMCache dla PHP
+Summary(pl.UTF-8):	Moduł Turck MMCache dla PHP
 Name:		php4-%{_modname}
 Version:	2.4.6
 Release:	9
@@ -42,7 +42,7 @@ Więcej informacji można znaleźć pod %{url}.
 
 %package TurckLoader
 Summary:	Standalone loader of Turck MMCache's cached files
-Summary(pl.UTF-8):   Osobny loader plików Turck MMCache
+Summary(pl.UTF-8):	Osobny loader plików Turck MMCache
 Group:		Libraries
 Requires:	apache >= 1.3
 %{?requires_php_extension}
@@ -59,7 +59,7 @@ poprzez Truck MMCache bez niego samego.
 
 %package webinterface
 Summary:	WEB interface for Turck MMCache
-Summary(pl.UTF-8):   Interfejs WEB dla Turck MMCache
+Summary(pl.UTF-8):	Interfejs WEB dla Turck MMCache
 Group:		Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 
